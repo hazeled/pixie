@@ -1,0 +1,9 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.18)
+
+PROJECT(pixie_compiler)
+
+SET(SRCDIR "source/")
+
+FILE(GLOB_RECURSE SRC ${SRCDIR}/*.c)
+
+ADD_EXECUTABLE(pixie_compiler ${SRC})
