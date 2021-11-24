@@ -10,5 +10,5 @@ int main(int argc, char** argv)
     /*     return 1; */
     /* } */
     
-    return compile("test;");
+    return compile("int a = 2a;");
 }
