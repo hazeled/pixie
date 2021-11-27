@@ -1,0 +1,5 @@
+/home/hazel/projects/pixie/compiler/CMakeFiles/rebuild_cache.dir
+/home/hazel/projects/pixie/compiler/CMakeFiles/edit_cache.dir
+/home/hazel/projects/pixie/compiler/compiler/CMakeFiles/edit_cache.dir
+/home/hazel/projects/pixie/compiler/compiler/CMakeFiles/rebuild_cache.dir
+/home/hazel/projects/pixie/compiler/compiler/CMakeFiles/pixie_compiler.dir

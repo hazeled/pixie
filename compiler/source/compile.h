@@ -10,16 +10,13 @@
 // Used for the lexer. Gets the next character in the source and throws and error if there
 // isn't one
 #define GET_NEXT_CHAR(current_char) if(*++current_char == 0x00) { throw_compiler_error("Did not expect end of file!!"); }
-#define IS_WHITESPACE(c) c == ' ' || c == '\t'
-#define IS_NUMBER(c) c >= '0' && c <= '9' // Check if character c is in number ascii range
-#define IS_LETTER(c) (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
 
 // Keywords that are reserved for use
 // TODO : Make this definition atuomatic
-#define COMPILER_RESERVE_KEYWORD_COUNT 1
 const static char* compiler_reserved_keywords[] = {
     "function",
 };
+const static uint8_t COMPILER_RESERVE_KEYWORD_COUNT = sizeof(compiler_reserved_keywords) / sizeof(compiler_reserved_keywords[0]);
 
 
 typedef enum lexer_token_type_e {
@@ -50,7 +47,6 @@ typedef struct special_char_t {
     lexer_token_type_e token;
 } special_char_t;
 
-#define COMPILER_SPECIAL_CHARS_COUNT 5
 const static special_char_t compiler_special_chars[] = {
     { '{', SCOPE_START },
     { '}', SCOPE_END },
@@ -58,6 +54,8 @@ const static special_char_t compiler_special_chars[] = {
     { '-', SUBTRACT },
     { '=', EQUALS },
 };
+const static uint8_t COMPILER_SPECIAL_CHARS_COUNT = sizeof(compiler_special_chars) / sizeof(compiler_special_chars[0]);
+
 typedef struct lexer_state_t { 
     lexer_token_type_e currently_reading;
 } lexer_state_t;

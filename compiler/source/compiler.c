@@ -5,10 +5,5 @@
 
 int main(int argc, char** argv)
 {
-    /* if (argc != 2) { */
-    /*     printf("Source file name required\n"); */
-    /*     return 1; */
-    /* } */
-    
-    return compile("int a = 2a;");
+    return compile("int a = 2;");
 }

@@ -1,6 +1,7 @@
 #include "compile.h"
 #include "util/dynarr.h"
 #include "error.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,16 +20,16 @@ void lexer_token_initialize(lexer_token_t* token)
 // will return TRUE if c is a special char, and set `type` to the enum value of the token IF AND ONLY IF c is a special character
 char IS_SPECIAL(char c, lexer_token_type_e* type) 
 {
-    for (int i = 0; i < COMPILER_SPECIAL_CHARS_COUNT; i++) {
+    for (uint8_t i = 0; i < COMPILER_SPECIAL_CHARS_COUNT; i++) {
         if (c == compiler_special_chars[i].character) {
             *type = compiler_special_chars[i].token;
             return TRUE;
         }
-        return FALSE;
     }
+    return FALSE;
 }
 // Returns TRUE if c is in compiler_reserved_keywords, otherwise returns FALSE
-char IS_RESERVED(char* c) 
+char IS_KEYWORD(char* c) 
 {
     for (int i = 0; i < COMPILER_RESERVE_KEYWORD_COUNT; i++) {
         if (strcmp(compiler_reserved_keywords[i], c) == 0) {
@@ -50,22 +51,20 @@ void _push_token(dyn_arr_t* arr, lexer_token_t token)
         case YET_UNKOWN:
             // Determine token type
             // TODO : Check for 0x, 0b, etc
-
-            if (IS_NUMBER(token.value[0])) {
+            if (isdigit(token.value[0])) {
                 // Check to see if there's any letters in the number
-                char* c = token.value[0];
+                char* c = &token.value[1];
                 while (*c) {
-                    if (IS_NUMBER(*c) == FALSE) {
-                        thow_compiler_error("Expected number, but instead got something else");
+                    if (isdigit(*c) == FALSE) {
+                        throw_compiler_error("Expected number, but instead got something else\n");
                     }
                     c++; // Variable name deja-vu
                 }
                 token.type = NUMBER;
             }
-            else if (IS_RESERVED(token.value)) {
+            else if (IS_KEYWORD(token.value)) {
                 token.type = KEYWORD;
             }
-
             DYN_ARR_PUSH_BACK(*arr, token);
             break;
         default:
@@ -80,8 +79,6 @@ dyn_arr_t lex(char* filesrc)
 {
     lexer_state_t lexer_state;
     lexer_state_initialize(&lexer_state);
-
-    
 
     dyn_arr_t all_lexer_tokens = DYN_ARR_CREATE(lexer_token_t);
     lexer_token_t current_token;
@@ -119,36 +116,29 @@ dyn_arr_t lex(char* filesrc)
             lexer_state.currently_reading = NONE;
         }
 
-        if (lexer_state.currently_reading == NONE) {
-            if (IS_LETTER(*current_char)) {
-                lexer_state.currently_reading = YET_UNKOWN;
-                lexer_token_initialize(&current_token);
-                current_token.type = YET_UNKOWN;
-                _TV_APPEND_CHAR(*current_char, current_token)
-            }
-
-            else if (IS_NUMBER(*current_char)) {
-                lexer_state.currently_reading = NUMBER;
-                lexer_token_initialize(&current_token);
-                current_token.type = NUMBER;
-                _TV_APPEND_CHAR(*current_char, current_token)
-            }
-
-            else if (*current_char == '"') {
-                // Start a string literal
-                lexer_state.currently_reading = STRING;
-                lexer_token_initialize(&current_token);
-                current_token.type = STRING;
+        else if (lexer_state.currently_reading == NONE) {
+            if (!isspace(*current_char)) {
+                if (*current_char == '"') {
+                    // Start a string literal
+                    lexer_state.currently_reading = STRING;
+                    lexer_token_initialize(&current_token);
+                    current_token.type = STRING;
+                } else {
+                    lexer_state.currently_reading = YET_UNKOWN;
+                    lexer_token_initialize(&current_token);
+                    current_token.type = YET_UNKOWN;
+                    _TV_APPEND_CHAR(*current_char, current_token)
+                }
             }
         }
 
         else if (lexer_state.currently_reading == YET_UNKOWN) {
             // Currently reading a symbol or number,
-            if (IS_LETTER(*current_char) || IS_NUMBER(*current_char)) {
+            if (isalpha(*current_char) || isdigit(*current_char)) {
                 // More letters, append to symbol name
                 _TV_APPEND_CHAR(*current_char, current_token);
             }
-            else if (IS_WHITESPACE(*current_char)) {
+            else if (isspace(*current_char)) {
                 // Whitespace has appeared, and the symbol name has ended
                 // Add lexer token to the dynarr
                 _push_token(&all_lexer_tokens, current_token);
@@ -187,7 +177,6 @@ int compile(char* filesrc)
 
 int compile_tokens(dyn_arr_t tokens)
 {
-    printf("b %d\n", tokens.length);
     for (int i = 0; i < tokens.length; i++) {
         lexer_token_t token = DYN_ARR_ACCESS(tokens, lexer_token_t, i);
         printf("(%d, %s)\n", token.type, token.value);
