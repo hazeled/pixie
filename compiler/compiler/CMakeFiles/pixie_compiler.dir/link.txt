@@ -1,1 +1,0 @@
-/usr/bin/cc -g CMakeFiles/pixie_compiler.dir/source/compile.c.o CMakeFiles/pixie_compiler.dir/source/compiler.c.o CMakeFiles/pixie_compiler.dir/source/error.c.o CMakeFiles/pixie_compiler.dir/source/util/dynarr.c.o -o pixie_compiler 
